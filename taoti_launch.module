@@ -1,0 +1,239 @@
+<?php
+
+/**
+ * @file
+ * Code for the taoti_launch module.
+ */
+
+/**
+ * Implements hook_checklistapi_checklist_info().
+ */
+function taoti_launch_checklistapi_checklist_info() {
+  $modules_page = array('#text' => t('Enable'), '#path' => 'admin/modules');
+
+  $definitions = array();
+  $definitions['pasc'] = array(
+    '#title' => t('Performance and scalability checklist'),
+    '#description' => t('Track performance and scalability optimization tasks.'),
+    '#path' => 'admin/config/development/pasc',
+    '#help' => t("<p>This checklist will help you optimize the software stack your web site operates on, from Apache up to your Drupal theme. It assumes you're running Apache and MySQL. Details may vary if you're using Nginx or PostgreSQL, for example. There are viable alternatives to some of the recommendations below. Additionally, some recommendations may not be strictly necessary in your case, and there's <em>certainly</em> <em>more</em> you can do than what's listed here if you really need to squeeze every last bit of performance out of your site. This list represents the most widely-observed best practices suitable for most medium-sized Drupal sites. Follow it so far as it suits your particular needs.</p>"),
+
+    // Tune Apache.
+    'check_security' => array(
+      '#title' => t('Check Security'),
+	  'install_botcha_module' => array(
+        '#title' => t('Install and enable BOTCHA module to combat spambots.'),
+        '#default_value' => module_exists('botcha'),
+        'project_page' => array(
+          '#text' => t('Download BOTCHA module from Drupal.org'),
+          '#path' => 'http://drupal.org/project/botcha',
+        ),
+        'modules_page' => $modules_page,
+      ),
+	'check_user_register' => array(
+        '#title' => t('Confirm user registration settings are set to Administrator only'),
+        '#default_value' => !(variable_get('user_register', 0)),
+        'download_site' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://pecl.php.net/package/APC',
+        ),
+      ),     
+
+	),
+    'development_cleanup' => array(
+      '#title' => t('Development Cleanup'),
+
+	),
+    'check_performance' => array(
+      '#title' => t('Optimize Performance'),
+      
+      'enable_block_caching' => array(
+        '#title' => t('Enable block caching.'),
+        '#default_value' => variable_get('block_cache', 0),
+        'performance_page' => array(
+          '#text' => t('Performance'),
+          '#path' => 'admin/config/development/performance',
+        ),
+      ),
+
+      'install_expire_module' => array(
+        '#title' => t('Install the <em>Cache Expiration</em> Drupal module.'),
+        '#default_value' => module_exists('expire'),
+        'project_page' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://drupal.org/project/expire',
+        ),
+        'modules_page' => $modules_page,
+      ),
+    ),
+
+    // Tune MySQL.
+    'tune_mysql' => array(
+      '#title' => t('Tune MySQL'),
+      'use_innodb_engine' => array(
+        '#title' => t('Use the InnoDB storage engine.'),
+        'documentation_page' => array(
+          '#text' => t('Converting Tables from Other Storage Engines to InnoDB'),
+          '#path' => 'http://dev.mysql.com/doc/refman/5.6/en/converting-tables-to-innodb.html',
+        ),
+      ),
+      'install_memcached' => array(
+        '#title' => t('Install the <em>Memcached</em> memory object cache.'),
+        'download_site' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://memcached.org/',
+        ),
+      ),
+      'install_memcache_extension' => array(
+        '#title' => t('Install the <em>memcache</em> extension for PHP.'),
+        '#default_value' => extension_loaded('memcache'),
+        'download_site' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://pecl.php.net/package/memcache',
+        ),
+      ),
+ 
+      'install_db_maintenance' => array(
+        '#title' => t('Install the <em>DB Maintenance</em> Drupal module.'),
+        '#description' => t('This module regularly optimizes administrator-selected database tables.'),
+        '#default_value' => module_exists('db_maintenance'),
+        'project_page' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://drupal.org/project/db_maintenance',
+        ),
+        'modules_page' => $modules_page,
+      ),
+      'configure_db_maintenance' => array(
+        '#title' => t('Configure the <em>DB Maintenance</em> Drupal module.'),
+        'config_page' => array(
+          '#text' => t('Configure'),
+          '#path' => 'admin/config/system/db_maintenance',
+        ),
+      ),
+    ),
+
+    // Tune PHP.
+    'tune_php' => array(
+      '#title' => t('Tune PHP'),
+      'disable_unused_php_extensions' => array(
+        '#title' => t('Disable unused PHP extensions.'),
+      ),
+      'install_memcache_extension' => array(
+        '#title' => t('Install the <em>APC (Alternative PHP Cache)</em> opcode cache.'),
+        '#default_value' => extension_loaded('apc'),
+        'download_site' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://pecl.php.net/package/APC',
+        ),
+      ),
+      'tune_apc' => array(
+        '#title' => t('Tune APC.'),
+        '#description' => t("It's very important that you allot APC enough memory to cache your entire codebase or it can actually <em>slow your server down</em>."),
+      ),
+    ),
+
+    // Tune Drupal.
+    'tune_drupal' => array(
+      '#title' => t('Tune Drupal'),
+      'disable_unused_drupal_modules' => array(
+        '#title' => t('Disable unused Drupal modules.'),
+        '#description' => t('Bootstrapping unused modules wastes CPU cycles and RAM.'),
+        'modules_page' => array(
+          '#text' => t('Modules'),
+          '#path' => 'admin/modules',
+        ),
+      ),
+      'enable_page_caching' => array(
+        '#title' => t('Enable page caching.'),
+        '#default_value' => variable_get('cache', 0),
+        'performance_page' => array(
+          '#text' => t('Performance'),
+          '#path' => 'admin/config/development/performance',
+        ),
+      ),
+
+      'configure_views_caching' => array(
+        '#title' => t('Configure Views caching.'),
+      ),
+      'use_solr_search' => array(
+        '#title' => t('[Optional] Use <em>Apache Solr</em> instead of core search.'),
+        '#description' => t("Relational databases aren't designed to be search backends. Because core search depends on the database it's comparatively slow, and it adds strain to most Drupal sites' biggest bottleneck."),
+        'solr_website' => array(
+          '#text' => t('Apache Solr website'),
+          '#path' => 'http://lucene.apache.org/solr/',
+        ),
+        'apachesolr_project_page' => array(
+          '#text' => t('Apache Solr Search integration module'),
+          '#path' => 'http://drupal.org/project/apachesolr',
+        ),
+      ),
+      'install_fast_404_module' => array(
+        '#title' => t('[Optional] Install the <em>Fast 404</em> Drupal module.'),
+        '#description' => t("Drupal 404 pages are expensive. This module will make sure you aren't generating them unnecessarily."),
+        '#default_value' => module_exists('fast_404'),
+        'project_page' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://drupal.org/project/fast_404',
+        ),
+        'modules_page' => $modules_page,
+      ),
+    ),
+
+    // Optimize the front end.
+    'optimize_front_end' => array(
+      '#title' => t('Optimize the front end'),
+      'enable_css_aggregation' => array(
+        '#title' => t('Enable CSS file aggregation and compression.'),
+        '#default_value' => variable_get('preprocess_css', 0),
+        'performance_page' => array(
+          '#text' => t('Performance'),
+          '#path' => 'admin/config/development/performance',
+        ),
+      ),
+      'enable_javascript_aggregation' => array(
+        '#title' => t('Enable JavaScript file aggregation.'),
+        '#default_value' => variable_get('preprocess_js', 0),
+        'performance_page' => array(
+          '#text' => t('Performance'),
+          '#path' => 'admin/config/development/performance',
+        ),
+      ),
+      'install_speedy' => array(
+        '#title' => t('Install the <em>Speedy</em> Drupal module.'),
+        '#default_value' => module_exists('speedy'),
+        'project_page' => array(
+          '#text' => t('Download'),
+          '#path' => 'http://drupal.org/project/speedy',
+        ),
+        'modules_page' => $modules_page,
+      ),
+      'run_yslow' => array(
+        '#title' => t('Run YSlow.'),
+        'product_page' => array(
+          '#text' => t('YSlow'),
+          '#path' => 'http://yslow.org/',
+        ),
+      ),
+      'run_google_pagespeed' => array(
+        '#title' => t('Run Google PageSpeed.'),
+        'product_page' => array(
+          '#text' => t('PageSpeed Tools'),
+          '#path' => 'https://developers.google.com/speed/pagespeed/',
+        ),
+      ),
+      'use_a_cdn' => array(
+        '#title' => t('[Optional] Serve static files from a Content Delivery Network (CDN).'),
+        'wikipedia_page' => array(
+          '#text' => t('Content delivery network Wikipedia page'),
+          '#path' => 'http://en.wikipedia.org/wiki/Content_delivery_network',
+        ),
+        'cdn_module' => array(
+          '#text' => t('CDN Drupal module'),
+          '#path' => 'http://drupal.org/project/cdn',
+        ),
+      ),
+    ),
+
+  );
+  return $definitions;
+}
