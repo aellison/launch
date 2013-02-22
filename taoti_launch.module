@@ -24,6 +24,9 @@ function taoti_launch_checklistapi_checklist_info() {
   $search_stat_count = format_plural($search_stat_remaining, 'There is 1 item left to index.', 'There are @count items left to index.');
   $search_stat_percentage = ((int)min(100, 100 * ($search_stat_total - $search_stat_remaining) / max(1, $search_stat_total))) . '%';
 
+  $threshold_warning = variable_get('cron_threshold_warning', 172800);
+  $cron_last = variable_get('cron_last');
+  $last_cron_run = format_interval(REQUEST_TIME - variable_get('cron_last'));
 
   $modules_page = array('#text' => t('Enable'), '#path' => 'admin/modules');
 
@@ -94,6 +97,15 @@ function taoti_launch_checklistapi_checklist_info() {
 	// Optimize Performance
     'check_performance' => array(
       '#title' => t('Optimize Performance'),
+		 'check_aggregation' => array(
+			'#title' => t('Enable CSS & JS aggregation'),
+			'#default_value' => (variable_get('css_preprocess', 0) && variable_get('js_preprocess', 0)),
+			'project_page' => array(
+			  '#text' => t('Performance settings'),
+			  '#path' => 'admin/config/development/performance',
+			),			
+		  ),
+
       
 
     ),
@@ -109,7 +121,14 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#path' => 'admin/reports/dblog',
 			)  
 		),
- 
+ 		'check_cron' => array(
+			'#title' => 'Confirm cron job is running and runs regularly [ Last run '.$last_cron_run.' ]',
+			'#default_value' => 0,
+			'project_page' => array(
+			  '#text' => t('Run cron'),
+			  '#path' => '/cron.php?cron_key='.variable_get('cron_key', 'drupal'),
+			)  
+		),
       
     ),
 	
