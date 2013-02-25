@@ -54,6 +54,10 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#path' => 'http://drupal.org/project/security_review',
 			),
 			'modules_page' => $modules_page,
+            'report_page' => array(
+              '#text' => t('View or Run Report'),
+              '#path' => 'admin/reports/security-review',
+                ),
 		  ),
 		  'install_botcha_module' => array(
 			'#title' => t('Install and enable BOTCHA module to combat spambots.'),
@@ -105,6 +109,14 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#path' => 'admin/config/development/performance',
 			),			
 		  ),
+        'check_basic_caching' => array(
+            '#title' => t('Enable anonymous page & block caching'),
+            '#default_value' => (variable_get('block_cache', 0) && variable_get('cache', 0)),
+            'project_page' => array(
+              '#text' => t('Performance settings'),
+              '#path' => 'admin/config/development/performance#edit-caching',
+            ),
+      ),
 
       
 
