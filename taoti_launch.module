@@ -35,20 +35,29 @@ function taoti_launch_checklistapi_checklist_info() {
     '#title' => t('Taoti Launch Checklist'),
     '#description' => t('Checklist of final checks for launching project or checking existing site'),
     '#path' => 'admin/config/development/launch-checklist',
-    '#help' => t("<p>This checklist will help you optimize the software stack your web site operates on, from Apache up to your Drupal theme. It assumes you're running Apache and MySQL. Details may vary if you're using Nginx or PostgreSQL, for example. There are viable alternatives to some of the recommendations below. Additionally, some recommendations may not be strictly necessary in your case, and there's <em>certainly</em> <em>more</em> you can do than what's listed here if you really need to squeeze every last bit of performance out of your site. This list represents the most widely-observed best practices suitable for most medium-sized Drupal sites. Follow it so far as it suits your particular needs.</p>"),
+    '#help' => t("<p>This checklist will help </p>"),
 
     // Security Review
     'check_security' => array(
 		  '#title' => t('Security Review'),
 
+		 'check_user_register' => array(
+			'#title' => t('Confirm user registration settings are set to Administrator only'),
+			'#default_value' => !(variable_get('user_register', 0)),
+			'project_page' => array(
+			  '#text' => t('User registration settings'),
+			  '#path' => 'admin/config/people/accounts',
+			),			
+		  ),     
+
 		 'disable_php_filter' => array(
 			'#title' => t('Disable the php_filter module or be prepared to justify its use'),
-			'#default_value' => !module_exists('php_filter'),
+			'#default_value' => _check_disable_php_filter(),
 			'modules_page' => $modules_page,
 		  ),
 		  'install_security_review_module' => array(
 			'#title' => t('Install and run security review module to check for issues.'),
-			'#default_value' => module_exists('security_review'),
+			'#default_value' => _check_install_security_review_module(),
 			'project_page' => array(
 			  '#text' => t('Download Security Review module from Drupal.org'),
 			  '#path' => 'http://drupal.org/project/security_review',
@@ -57,7 +66,7 @@ function taoti_launch_checklistapi_checklist_info() {
             'report_page' => array(
               '#text' => t('View or Run Report'),
               '#path' => 'admin/reports/security-review',
-                ),
+            ),
 		  ),
 		  'install_botcha_module' => array(
 			'#title' => t('Install and enable BOTCHA module to combat spambots.'),
@@ -68,14 +77,25 @@ function taoti_launch_checklistapi_checklist_info() {
 			),
 			'modules_page' => $modules_page,
 		  ),
-		 'check_user_register' => array(
-			'#title' => t('Confirm user registration settings are set to Administrator only'),
-			'#default_value' => !(variable_get('user_register', 0)),
+		  'enable_syslog_module' => array(
+			'#title' => t('Enable the syslog module to track Drupal system events to the server system logs.'),
+			'#default_value' => _check_enable_syslog_module(),
 			'project_page' => array(
-			  '#text' => t('User registration settings'),
-			  '#path' => 'admin/config/people/accounts',
-			),			
-		  ),     
+			  '#text' => t('Download BOTCHA module from Drupal.org'),
+			  '#path' => 'http://drupal.org/project/botcha',
+			),
+			'modules_page' => $modules_page,
+		  ),
+		  'disable_error_reporting' => array(
+			'#title' => t('Disable display of site errors to avoid exposing vulnerabilities'),
+			'#default_value' => _check_disable_error_reporting(),
+			'project_page' => array(
+			  '#text' => t('Disable error display'),
+			  '#path' => 'admin/config/development/logging',
+			)  
+		),
+
+		  		  
 	),
 	
 	// Development Cleanup
@@ -83,10 +103,35 @@ function taoti_launch_checklistapi_checklist_info() {
       '#title' => t('Development Cleanup'),
 
 		'disable_devel_module' => array(
-			'#title' => t('Disable the devel module (and any other development specific modules, ex. devel_themer)'),
-			'#default_value' => module_exists('devel'),
+			'#title' => t('Disable the devel module'),
+			'#default_value' => _check_disable_devel_module(),
 			'modules_page' => $modules_page,
 		),      
+		'disable_coder_module' => array(
+			'#title' => t('Disable the coder module'),
+			'#default_value' => _check_disable_coder(),
+			'modules_page' => $modules_page,
+		),		
+		'disable_migrate_module' => array(
+			'#title' => t('Disable the migrate module'),
+			'#default_value' => _check_disable_migrate(),
+			'modules_page' => $modules_page,
+		),		
+		'disable_simpletest_module' => array(
+			'#title' => t('Disable the simpletest module'),
+			'#default_value' => _check_disable_simpletest(),
+			'modules_page' => $modules_page,
+		),		
+		'disable_registry_rebuild' => array(
+			'#title' => t('Turn off the "Rebuild theme registry on every page" development option'),
+			'#default_value' => _check_disable_registry_rebuild(),
+			'project_page' => array(
+			  '#text' => t('Development settings'),
+			  '#path' => '/admin/config/development/devel',
+			)  
+
+		),		
+
 		'check_test_content' => array(
 			'#title' => t('Confirm test / development content has been removed (tip: check earliest entries in admin/content/node).'),
 			'#default_value' => 0,
@@ -108,15 +153,23 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#text' => t('Performance settings'),
 			  '#path' => 'admin/config/development/performance',
 			),			
-		  ),
-        'check_basic_caching' => array(
+		 ),
+        'basic_caching' => array(
             '#title' => t('Enable anonymous page & block caching'),
             '#default_value' => (variable_get('block_cache', 0) && variable_get('cache', 0)),
             'project_page' => array(
               '#text' => t('Performance settings'),
               '#path' => 'admin/config/development/performance#edit-caching',
             ),
-      ),
+         ),
+        'caching_lifetime' => array(
+            '#title' => t('Minimum cache lifetime and expiration of cached pages should be set to at least 5 minutes'),
+            '#default_value' => _check_caching_lifetime(),
+            'project_page' => array(
+              '#text' => t('Performance settings'),
+              '#path' => 'admin/config/development/performance#edit-caching',
+            ),
+         ),
 
       
 
@@ -172,9 +225,9 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#path' => 'admin/config/search/settings',
 			)  
 		),
-		'check_google_analytics' => array(
+		'setup_google_analytics' => array(
 			'#title' => 'Confirm Google Analytics module is enabled with active Web Property ID',
-			'#default_value' => ((module_exists('googleanalytics')) && (variable_get('googleanalytics_account', 0))),
+			'#default_value' => _check_setup_google_analytics(),
 			'project_page' => array(
 			  '#text' => t('Check search index at search settings page'),
 			  '#path' => 'admin/config/search/settings',
@@ -186,4 +239,56 @@ function taoti_launch_checklistapi_checklist_info() {
 	
   );
   return $definitions;
+}
+
+function _check_caching_lifetime() { 
+	$cache_lifetime = variable_get('cache_lifetime');
+	$cache_age = variable_get('page_cache_maximum_age');
+
+	return (($cache_lifetime>299) && ($cache_age>299));
+}
+
+function _check_setup_google_analytics() {
+	return ((module_exists('googleanalytics')) && (variable_get('googleanalytics_account', 0)));	
+}
+
+function _check_disable_php_filter() { 
+	return !(module_exists('php_filter'));
+}
+
+function _check_install_security_review_module() {
+	return module_exists('security_review');
+}
+
+function _check_disable_devel_module() {
+	return !(module_exists('devel'));
+}
+
+function _check_enable_syslog_module() {
+	return module_exists('syslog');
+}
+
+function _check_disable_error_reporting() { 
+	$error_level = variable_get("error_level");
+	return !($error_level);	
+}
+
+function _check_disable_devel_themer() {
+	return !(module_exists('devel_themer'));
+}
+
+function _check_disable_coder() {
+	return !(module_exists('coder'));
+}
+
+function _check_disable_migrate() {
+	return !(module_exists('migrate'));
+}
+
+function _check_disable_simpletest() {
+	return !(module_exists('simpletest'));
+}
+
+function _check_disable_registry_rebuild() {
+	return (!variable_get('devel_rebuild_theme_registry'));
 }
