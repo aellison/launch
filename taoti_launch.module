@@ -291,4 +291,4 @@ function _check_disable_simpletest() {
 
 function _check_disable_registry_rebuild() {
 	return (!variable_get('devel_rebuild_theme_registry'));
-}
+}}
