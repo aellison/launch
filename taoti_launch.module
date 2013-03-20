@@ -63,11 +63,20 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#path' => 'http://drupal.org/project/security_review',
 			),
 			'modules_page' => $modules_page,
-            'report_page' => array(
-              '#text' => t('View or Run Report'),
-              '#path' => 'admin/reports/security-review',
-            ),
+	               'report_page' => array(
+	             	  '#text' => t('View or Run Report'),
+	               	  '#path' => 'admin/reports/security-review',
+                        ),
 		  ),
+                  'install_backupmigrate_module' => array(
+                        '#title' => t('Install and enable Backup / Migrate module and setup a schedule of at least 1x daily, 7x incremental.'),
+                        '#default_value' => _check_install_backupmigrate_module(),
+                        'project_page' => array(
+                          '#text' => t('Download Backup / Migrate module from Drupal.org'),
+                          '#path' => 'http://drupal.org/project/backupmigrate',
+                        ),
+                        'modules_page' => $modules_page,
+                  ),
 		  'install_botcha_module' => array(
 			'#title' => t('Install and enable BOTCHA module to combat spambots.'),
 			'#default_value' => module_exists('botcha'),
@@ -80,10 +89,6 @@ function taoti_launch_checklistapi_checklist_info() {
 		  'enable_syslog_module' => array(
 			'#title' => t('Enable the syslog module to track Drupal system events to the server system logs.'),
 			'#default_value' => _check_enable_syslog_module(),
-			'project_page' => array(
-			  '#text' => t('Download BOTCHA module from Drupal.org'),
-			  '#path' => 'http://drupal.org/project/botcha',
-			),
 			'modules_page' => $modules_page,
 		  ),
 		  'disable_error_reporting' => array(
@@ -148,7 +153,7 @@ function taoti_launch_checklistapi_checklist_info() {
       '#title' => t('Optimize Performance'),
 		 'check_aggregation' => array(
 			'#title' => t('Enable CSS & JS aggregation'),
-			'#default_value' => (variable_get('css_preprocess', 0) && variable_get('js_preprocess', 0)),
+			'#default_value' => _check_check_aggregation(),
 			'project_page' => array(
 			  '#text' => t('Performance settings'),
 			  '#path' => 'admin/config/development/performance',
@@ -241,11 +246,27 @@ function taoti_launch_checklistapi_checklist_info() {
   return $definitions;
 }
 
+function _check_check_aggregation() { 
+
+	$css = variable_get('css_preprocess');
+	$js =  variable_get('js_preprocess');
+
+	return ($css && $js);
+}
+
 function _check_caching_lifetime() { 
 	$cache_lifetime = variable_get('cache_lifetime');
 	$cache_age = variable_get('page_cache_maximum_age');
 
-	return (($cache_lifetime>299) && ($cache_age>299));
+	return (($cache_lifetime>299) && ($cache_age>21600));
+}
+
+function _check_install_backupmigrate_module() {
+
+	$result = db_query("select schedule_id from backup_migrate_schedules limit 0,1");
+	if ($result->rowCount()) { $sched = 1; } else { $sched = 0; }
+
+        return (module_exists('backup_migrate') && $sched);
 }
 
 function _check_setup_google_analytics() {
