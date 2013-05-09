@@ -134,8 +134,15 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#text' => t('Development settings'),
 			  '#path' => '/admin/config/development/devel',
 			)  
-
 		),		
+                'disable_zen_registry_rebuild' => array(
+                        '#title' => t('(Zen Theme Specific) Turn off the "Rebuild theme registry on every page" development option'),
+                        '#default_value' => _check_disable_zenregistry_rebuild(),
+                        'project_page' => array(
+                          '#text' => t('appearence settings'),
+                          '#path' => '/admin/appearance/settings/',
+                        )
+                ),
 
 		'check_test_content' => array(
 			'#title' => t('Confirm test / development content has been removed (tip: check earliest entries in admin/content/node).'),
@@ -160,7 +167,7 @@ function taoti_launch_checklistapi_checklist_info() {
 			),			
 		 ),
         'basic_caching' => array(
-            '#title' => t('Enable anonymous page & block caching'),
+            '#title' => t('Enable both "Cache pages" & "Cache blocks" on performance page'),
             '#default_value' => (variable_get('block_cache', 0) && variable_get('cache', 0)),
             'project_page' => array(
               '#text' => t('Performance settings'),
@@ -248,17 +255,18 @@ function taoti_launch_checklistapi_checklist_info() {
 
 function _check_check_aggregation() { 
 
-	$css = variable_get('css_preprocess');
-	$js =  variable_get('js_preprocess');
+	$css = variable_get('preprocess_css');
+	$js =  variable_get('preprocess_js');
 
 	return ($css && $js);
 }
 
 function _check_caching_lifetime() { 
+
 	$cache_lifetime = variable_get('cache_lifetime');
 	$cache_age = variable_get('page_cache_maximum_age');
 
-	return (($cache_lifetime>299) && ($cache_age>21600));
+	return (($cache_lifetime>299) && ($cache_age>21599));
 }
 
 function _check_install_backupmigrate_module() {
@@ -312,4 +320,8 @@ function _check_disable_simpletest() {
 
 function _check_disable_registry_rebuild() {
 	return (!variable_get('devel_rebuild_theme_registry'));
+}
+
+function _check_disable_zenregistry_rebuild() {
+        return (!variable_get('zen_rebuild_registry'));
 }
