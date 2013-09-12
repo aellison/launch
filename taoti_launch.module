@@ -39,29 +39,28 @@ function taoti_launch_checklistapi_checklist_info() {
 
     // Security Review
     'check_security' => array(
-		  '#title' => t('Security Review'),
+      '#title' => t('Security Review'),
+        'check_user_register' => array(
+        '#title' => t('Confirm user registration settings are set to Administrator only'),
+        '#default_value' => !(variable_get('user_register', 0)),
+        'project_page' => array(
+          '#text' => t('User registration settings'),
+          '#path' => 'admin/config/people/accounts',
+        ),			
+      ),     
 
-		 'check_user_register' => array(
-			'#title' => t('Confirm user registration settings are set to Administrator only'),
-			'#default_value' => !(variable_get('user_register', 0)),
-			'project_page' => array(
-			  '#text' => t('User registration settings'),
-			  '#path' => 'admin/config/people/accounts',
-			),			
-		  ),     
-
-		 'disable_php_filter' => array(
-			'#title' => t('Disable the php_filter module or be prepared to justify its use'),
-			'#default_value' => _check_disable_php_filter(),
-			'modules_page' => $modules_page,
-		  ),
-		  'install_security_review_module' => array(
-			'#title' => t('Install and run security review module to check for issues.'),
-			'#default_value' => _check_install_security_review_module(),
-			'project_page' => array(
-			  '#text' => t('Download Security Review module from Drupal.org'),
-			  '#path' => 'http://drupal.org/project/security_review',
-			),
+    'disable_php_filter' => array(
+      '#title' => t('Disable the php_filter module or be prepared to justify its use'),
+      '#default_value' => _check_disable_php_filter(),
+      'modules_page' => $modules_page,
+    ),
+    'install_security_review_module' => array(
+      '#title' => t('Install and run security review module to check for issues.'),
+      '#default_value' => _check_install_security_review_module(),
+      'project_page' => array(
+      '#text' => t('Download Security Review module from Drupal.org'),
+      '#path' => 'http://drupal.org/project/security_review',
+    ),
 			'modules_page' => $modules_page,
 	               'report_page' => array(
 	             	  '#text' => t('View or Run Report'),
@@ -255,73 +254,78 @@ function taoti_launch_checklistapi_checklist_info() {
 
 function _check_check_aggregation() { 
 
-	$css = variable_get('preprocess_css');
-	$js =  variable_get('preprocess_js');
+  $css = variable_get('preprocess_css');
+  $js =  variable_get('preprocess_js');
 
-	return ($css && $js);
+  return ($css && $js);
 }
 
 function _check_caching_lifetime() { 
 
-	$cache_lifetime = variable_get('cache_lifetime');
-	$cache_age = variable_get('page_cache_maximum_age');
+  $cache_lifetime = variable_get('cache_lifetime');
+  $cache_age = variable_get('page_cache_maximum_age');
 
-	return (($cache_lifetime>299) && ($cache_age>21599));
+  return (($cache_lifetime>299) && ($cache_age>21599));
 }
 
 function _check_install_backupmigrate_module() {
 
-	$result = db_query("select schedule_id from backup_migrate_schedules limit 0,1");
-	if ($result->rowCount()) { $sched = 1; } else { $sched = 0; }
+  $result = db_query("select schedule_id from backup_migrate_schedules limit 0,1");
+  if ($result->rowCount()) { 
+    $sched = 1; 
+  } 
+  else { 
+    $sched = 0; 
+  }
 
-        return (module_exists('backup_migrate') && $sched);
+  return (module_exists('backup_migrate') && $sched);
 }
 
 function _check_setup_google_analytics() {
-	return ((module_exists('googleanalytics')) && (variable_get('googleanalytics_account', 0)));	
+  return ((module_exists('googleanalytics')) && (variable_get('googleanalytics_account', 0)));	
 }
 
 function _check_disable_php_filter() { 
-	return !(module_exists('php_filter'));
+  return !(module_exists('php_filter'));
 }
 
 function _check_install_security_review_module() {
-	return module_exists('security_review');
+  return module_exists('security_review');
 }
 
 function _check_disable_devel_module() {
-	return !(module_exists('devel'));
+  return !(module_exists('devel'));
 }
 
 function _check_enable_syslog_module() {
-	return module_exists('syslog');
+  return module_exists('syslog');
 }
 
 function _check_disable_error_reporting() { 
-	$error_level = variable_get("error_level");
-	return !($error_level);	
+  $error_level = variable_get("error_level");
+  return !($error_level);	
 }
 
 function _check_disable_devel_themer() {
-	return !(module_exists('devel_themer'));
+  return !(module_exists('devel_themer'));
 }
 
 function _check_disable_coder() {
-	return !(module_exists('coder'));
+  return !(module_exists('coder'));
 }
 
 function _check_disable_migrate() {
-	return !(module_exists('migrate'));
+  return !(module_exists('migrate'));
 }
 
 function _check_disable_simpletest() {
-	return !(module_exists('simpletest'));
+  return !(module_exists('simpletest'));
 }
 
 function _check_disable_registry_rebuild() {
-	return (!variable_get('devel_rebuild_theme_registry'));
+  return (!variable_get('devel_rebuild_theme_registry'));
 }
 
 function _check_disable_zenregistry_rebuild() {
-        return (!variable_get('zen_rebuild_registry'));
+  return (!variable_get('zen_rebuild_registry'));
 }
