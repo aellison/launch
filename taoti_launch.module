@@ -10,19 +10,21 @@
  */
 function taoti_launch_checklistapi_checklist_info() {
 
-  // Pull search index stats (cribbed from search_admin_settings() in search.admin.inc
-
-  $search_stat_remaining = 0;
-  $search_stat_total = 0;
-  foreach (variable_get('search_active_modules', array('node', 'user')) as $module) {
-    if ($status = module_invoke($module, 'search_status')) {
-      $search_stat_remaining += $status['remaining'];
-      $search_stat_total += $status['total'];
+  // Don't assume search is enabled.
+  if (module_exists('search')) {
+    // Pull search index stats (cribbed from search_admin_settings() in search.admin.inc
+    $search_stat_remaining = 0;
+    $search_stat_total = 0;
+    foreach (variable_get('search_active_modules', array('node', 'user')) as $module) {
+      if ($status = module_invoke($module, 'search_status')) {
+        $search_stat_remaining += $status['remaining'];
+        $search_stat_total += $status['total'];
+      }
     }
-  }
 
-  $search_stat_count = format_plural($search_stat_remaining, 'There is 1 item left to index.', 'There are @count items left to index.');
-  $search_stat_percentage = ((int)min(100, 100 * ($search_stat_total - $search_stat_remaining) / max(1, $search_stat_total))) . '%';
+    $search_stat_count = format_plural($search_stat_remaining, 'There is 1 item left to index.', 'There are @count items left to index.');
+    $search_stat_percentage = ((int)min(100, 100 * ($search_stat_total - $search_stat_remaining) / max(1, $search_stat_total))) . '%';
+  }
 
   $threshold_warning = variable_get('cron_threshold_warning', 172800);
   $cron_last = variable_get('cron_last');
@@ -228,14 +230,16 @@ function taoti_launch_checklistapi_checklist_info() {
 			  '#path' => 'search/node',
 			)  
 		),
-		'check_search_index' => array(
-			'#title' => 'Confirm search index has finished running [ Current status: <b>'.$search_stat_count.'<b> ]',
-			'#default_value' => !($search_stat_remaining),
-			'project_page' => array(
-			  '#text' => t('Check search index at search settings page'),
-			  '#path' => 'admin/config/search/settings',
-			)  
-		),
+		if (module_exists('search'))
+			'check_search_index' => array(
+				'#title' => 'Confirm search index has finished running [ Current status: <b>'.$search_stat_count.'<b> ]',
+				'#default_value' => !($search_stat_remaining),
+				'project_page' => array(
+				  '#text' => t('Check search index at search settings page'),
+				  '#path' => 'admin/config/search/settings',
+				)  
+			),
+		}
 		'setup_google_analytics' => array(
 			'#title' => 'Confirm Google Analytics module is enabled with active Web Property ID',
 			'#default_value' => _check_setup_google_analytics(),
