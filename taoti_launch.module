@@ -150,6 +150,26 @@ function taoti_launch_checklistapi_checklist_info() {
         '#path' => 'admin/content/node?sort=asc&order=Created',
       )
     ),
+
+    'delete_unused_menus' => array(
+      '#title' => t('Delete unused menus.'),
+      '#default_value' => 0,
+      'project_page' => array(
+        '#text' => t('Check current menus'),
+        '#path' => 'admin/structure/menu',
+      )
+    ),
+
+    'delete_unused_taxonomy_vocabularies' => array(
+      '#title' => t('Delete unused taxonomy vocabularies.'),
+      '#default_value' => 0,
+      'project_page' => array(
+        '#text' => t('Check existing taxonomy vocabularies'),
+        '#path' => 'admin/structure/taxonomy',
+      )
+    ),
+
+
   ),
 
   // Optimize Performance
