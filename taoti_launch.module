@@ -168,6 +168,19 @@ function taoti_launch_checklistapi_checklist_info() {
         '#path' => 'admin/structure/taxonomy',
       )
     ),
+    /**
+     * @todo
+     * Write a function that checks css files to make sure they are not
+     * compiled for dev.
+     */
+    'set_sass_to_prod' => array(
+      '#title' => t('(SASS / Compass Specific) Set environment = :production in you config.rb file. Recompile CSS for production.'),
+      '#default_value' => 0,
+      'project_page' => array(
+        '#text' => t('Compass configuration reference.'),
+        '#path' => 'http://compass-style.org/help/tutorials/configuration-reference/',
+      )
+    ),
 
 
   ),
@@ -279,15 +292,15 @@ function _check_caching_lifetime() {
 }
 
 function _check_install_backupmigrate_module() {
-
-  $result = db_query("select schedule_id from backup_migrate_schedules limit 0,1");
-  if ($result->rowCount()) {
-    $sched = 1;
+  if (module_exists('backup_migrate')) {
+    $result = db_query("select schedule_id from backup_migrate_schedules limit 0,1");
+    if ($result->rowCount()) {
+      $sched = 1;
+    }
+    else {
+      $sched = 0;
+    }
   }
-  else {
-    $sched = 0;
-  }
-
   return (module_exists('backup_migrate') && $sched);
 }
 
